@@ -1,0 +1,4 @@
+name = C4
+author = Punished Bernadetta
+description = Remote detonated explosives. Left mouse button to plant, K to detonate, O and L to change explosion size, I to change delay between explosions
+tags = Tool

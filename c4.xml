@@ -1,0 +1,8 @@
+<group pos="0.0 0.0 0.0" rot="0.0 0.0 0.0">
+	<body pos="0., 0, 0" dynamic="true">
+		<vox tags="unbreakable" pos="0.0 0.1 0.0" texture="0" density="1" prop="true" file="MOD/vox/c4.vox" scale="1">
+			<joint pos="0.0 -0.1 -0.1" rot="90 0 0" type="cone" size="0.2" rotstrength="1.0" rotspring="0"/>
+		</vox>
+	</body>
+</group>
+
