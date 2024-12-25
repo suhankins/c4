@@ -93,9 +93,6 @@ local function isDetonateToolUsed()
 end
 
 function tick(dt)
-	SetToolHandPoseLocalTransform(Transform(Vec(0.1, 0, 0.0), QuatEuler(90, 180, 0)), Transform(Vec(-0.1, 0, 0.0), QuatEuler(-90, 0, 0)))
-	SetToolTransform(Transform(Vec(0, -0.3, -0.5), QuatEuler(40, 0, 0)))
-
 	--////////////////Explosion//////////////
 	timerTime = timerTime + dt
 
@@ -124,12 +121,14 @@ function tick(dt)
 	--////////////////Planting//////////////
 	--Check if C4 is selected
 	if GetString("game.player.tool") == "cfour" then
+		SetToolHandPoseLocalTransform(Transform(Vec(0.1, 0, 0.0), QuatEuler(90, 180, 0)), Transform(Vec(-0.1, 0, 0.0), QuatEuler(-90, 0, 0)))
+		SetToolTransform(Transform(Vec(0, -0.3, -0.5), QuatEuler(40, 0, 0)))	
 		--Check if tool is firing
 		if GetBool("game.player.canusetool") and InputPressed("usetool") and checkAmmo() then
 			if not GetBool("savegame.mod.limitedammo") then
 				SetFloat("game.tool.cfour.ammo", GetFloat("game.tool.cfour.ammo") - 1)
 			end
-			local t = GetCameraTransform()
+			local t = GetPlayerCameraTransform()
 			local fwd = TransformToParentVec(t, Vec(0, 0, -1))
 			-- Camera is further away in third person
 			local maxDist = GetBool("game.thirdperson") and 8 or 4
