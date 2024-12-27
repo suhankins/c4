@@ -59,6 +59,9 @@
         "DebugPrint",
         "GetBodyTransform",
         "SetToolHandPoseLocalTransform",
-        "GetPlayerCrouch"
+        "GetPlayerCrouch",
+        "QueryRejectShape",
+        "QueryInclude",
+        "GetPlayerCameraTransform"
     ]
 }

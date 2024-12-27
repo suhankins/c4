@@ -128,20 +128,29 @@ function draw()
 		drawTitle("C4 Options", 100, 48)
 		--Draw buttons
 		--Tool/Keyboard Key Switch
-		drawTitle('Detonate C4 using', 250)
-		drawButton(UiCenter() - 110, 300, "Keyboard key", not GetBool("savegame.mod.usetool"), function()
+		drawTitle('Detonate C4 using', 180)
+		drawButton(UiCenter() - 110, 230, "Keyboard key", not GetBool("savegame.mod.usetool"), function()
 			SetBool("savegame.mod.usetool", false)
 		end)
-		drawButton(UiCenter() + 110, 300, "'Detonate C4' tool", GetBool("savegame.mod.usetool"), function()
+		drawButton(UiCenter() + 110, 230, "'Detonate C4' tool", GetBool("savegame.mod.usetool"), function()
 			SetBool("savegame.mod.usetool", true)
 		end)
 
+		--Tool/Keyboard Key Switch
+		drawTitle('Should C4 charges collide with each other', 300)
+		drawButton(UiCenter() - 110, 350, "Yes", GetBool("savegame.mod.collide"), function()
+			SetBool("savegame.mod.collide", true)
+		end)
+		drawButton(UiCenter() + 110, 350, "No", not GetBool("savegame.mod.collide"), function()
+			SetBool("savegame.mod.collide", false)
+		end)
+
 		--Limited/Unlimited ammo Switch
-		drawTitle("Ammo", 400)
-		drawButton(UiCenter() - 110, 450, "Limited", not GetBool("savegame.mod.limitedammo"), function()
+		drawTitle("Ammo", 420)
+		drawButton(UiCenter() - 110, 470, "Limited", not GetBool("savegame.mod.limitedammo"), function()
 			SetBool("savegame.mod.limitedammo", false)
 		end)
-		drawButton(UiCenter() + 110, 450, "Unlimited", GetBool("savegame.mod.limitedammo"), function()
+		drawButton(UiCenter() + 110, 470, "Unlimited", GetBool("savegame.mod.limitedammo"), function()
 			SetBool("savegame.mod.limitedammo", true)
 		end)
 

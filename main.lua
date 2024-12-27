@@ -121,8 +121,10 @@ function tick(dt)
 	--////////////////Planting//////////////
 	--Check if C4 is selected
 	if GetString("game.player.tool") == "cfour" then
-		SetToolHandPoseLocalTransform(Transform(Vec(0.1, 0, 0.0), QuatEuler(90, 180, 0)), Transform(Vec(-0.1, 0, 0.0), QuatEuler(-90, 0, 0)))
-		SetToolTransform(Transform(Vec(0, -0.3, -0.5), QuatEuler(40, 0, 0)))	
+		SetToolHandPoseLocalTransform(Transform(Vec(0.1, 0, 0.0), QuatEuler(90, 180, 0)),
+			Transform(Vec(-0.1, 0, 0.0), QuatEuler(-90, 0, 0)))
+		SetToolTransform(Transform(Vec(0, -0.3, -0.5), QuatEuler(40, 0, 0)))
+
 		--Check if tool is firing
 		if GetBool("game.player.canusetool") and InputPressed("usetool") and checkAmmo() then
 			if not GetBool("savegame.mod.limitedammo") then
@@ -132,13 +134,27 @@ function tick(dt)
 			local fwd = TransformToParentVec(t, Vec(0, 0, -1))
 			-- Camera is further away in third person
 			local maxDist = GetBool("game.thirdperson") and 8 or 4
-			local hit, dist, normal, shape = QueryRaycast(t.pos, fwd, maxDist)
+			-- Making sure raycast collides with everything but the player and tool
+			QueryInclude("physical dynamic static large small visible animator")
+			if not GetBool('savegame.mod.collide') then
+				for _, listOfObjects in ipairs(bombs) do
+					for _, handle in ipairs(listOfObjects) do
+						QueryRejectShape(handle)
+					end
+				end
+			end
+			local hit, dist, normal = QueryRaycast(t.pos, fwd, maxDist)
 			if hit then
 				--Adding new bomb
 				local hitVec = VecAdd(t.pos, VecScale(fwd, dist))
 				local bombTransform = Transform(hitVec,
 					QuatRotateQuat(CalculateQuat(normal, fwd), QuatEuler(-90, 0, 180)))
 				local spawnedObjects = Spawn('MOD/c4.xml', bombTransform, true, true)
+				if not GetBool('savegame.mod.collide') then
+					for _, handle in ipairs(spawnedObjects) do
+						SetShapeCollisionFilter(handle, 2, 255 - 2)
+					end
+				end
 				bombs[#bombs + 1] = spawnedObjects
 
 				--Playing the sounds
