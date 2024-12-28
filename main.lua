@@ -20,10 +20,10 @@ local detonateKey = GetString("savegame.mod.detonateKey")
 
 local timerPresets = { 0, 0.1, 0.25, 0.5, 1, 2, 5 }
 
-local bombs
-local timerTime
-local bombsToExplode
-local snd
+Bombs = {}
+TimerTime = 0
+BombsToExplode = 0
+Sound = LoadSound("MOD/snd/c4plant.ogg")
 
 local function checkAmmo()
 	if GetBool("savegame.mod.limitedammo") then
@@ -52,10 +52,6 @@ function init()
 		RegisterTool("cfourdetonate", "Detonate C4", "")
 		SetBool("game.tool.cfourdetonate.enabled", true)
 	end
-	bombs = {}
-	timerTime = 0
-	bombsToExplode = 0
-	snd = LoadSound("MOD/snd/c4plant.ogg")
 
 	--Setting ammo if limited ammo is... Disabled? Oh god, i messed it up
 	if not GetBool("savegame.mod.limitedammo") then
@@ -76,12 +72,12 @@ end
 local function explodeBomb(bombId)
 	--if bombId was not provided, set it to 1
 	bombId = bombId or 1
-	local bombPos = GetBodyTransform(bombs[bombId][2]).pos
+	local bombPos = GetBodyTransform(Bombs[bombId][2]).pos
 	Explosion(bombPos, GetFloat("savegame.mod.explosionSize"))
-	for _, handle in ipairs(bombs[bombId]) do
+	for _, handle in ipairs(Bombs[bombId]) do
 		Delete(handle)
 	end
-	table.remove(bombs, bombId)
+	table.remove(Bombs, bombId)
 end
 
 local function isDetonateKeyPressed()
@@ -94,28 +90,28 @@ end
 
 function tick(dt)
 	--////////////////Explosion//////////////
-	timerTime = timerTime + dt
+	TimerTime = TimerTime + dt
 
 	--Making the actual explosion happen
-	if ((isDetonateKeyPressed() or isDetonateToolUsed()) and #bombs > 0) then
-		local temp = bombsToExplode
-		bombsToExplode = #bombs
+	if ((isDetonateKeyPressed() or isDetonateToolUsed()) and #Bombs > 0) then
+		local temp = BombsToExplode
+		BombsToExplode = #Bombs
 		if (temp == 0) then
-			timerTime = 0
+			TimerTime = 0
 			explodeBomb()
-			bombsToExplode = bombsToExplode - 1
+			BombsToExplode = BombsToExplode - 1
 		end
 	end
-	if bombsToExplode > 0 then
+	if BombsToExplode > 0 then
 		if GetInt("savegame.mod.explosionTimer") == 1 then
-			while bombsToExplode > 0 do
+			while BombsToExplode > 0 do
 				explodeBomb()
-				bombsToExplode = bombsToExplode - 1
+				BombsToExplode = BombsToExplode - 1
 			end
-		elseif timerTime > timerPresets[GetInt("savegame.mod.explosionTimer")] then
-			timerTime = 0
+		elseif TimerTime > timerPresets[GetInt("savegame.mod.explosionTimer")] then
+			TimerTime = 0
 			explodeBomb()
-			bombsToExplode = bombsToExplode - 1
+			BombsToExplode = BombsToExplode - 1
 		end
 	end
 	--////////////////Planting//////////////
@@ -137,7 +133,7 @@ function tick(dt)
 			-- Making sure raycast collides with everything but the player and tool
 			QueryInclude("physical dynamic static large small visible animator")
 			if not GetBool('savegame.mod.collide') then
-				for _, listOfObjects in ipairs(bombs) do
+				for _, listOfObjects in ipairs(Bombs) do
 					for _, handle in ipairs(listOfObjects) do
 						QueryRejectShape(handle)
 					end
@@ -155,10 +151,10 @@ function tick(dt)
 						SetShapeCollisionFilter(handle, 2, 255 - 2)
 					end
 				end
-				bombs[#bombs + 1] = spawnedObjects
+				Bombs[#Bombs + 1] = spawnedObjects
 
 				--Playing the sounds
-				PlaySound(snd)
+				PlaySound(Sound)
 			end
 		end
 
@@ -196,7 +192,7 @@ function draw()
 
 		--I separated it into multiple lines for convenience
 		local text = ""
-		text = text .. "Active charges of C4: " .. #bombs .. "\n"
+		text = text .. "Active charges of C4: " .. #Bombs .. "\n"
 		text = text ..
 			"Explosion size: " ..
 			math.floor(GetFloat("savegame.mod.explosionSize") * 100) /
