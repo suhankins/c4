@@ -25,6 +25,63 @@ TimerTime = 0
 BombsToExplode = 0
 Sound = LoadSound("MOD/snd/c4plant.ogg")
 
+local CONTROLS = {
+	['increaseKey'] = {
+		[1] = increaseKey,
+		[2] = 'extra2'
+	},
+	['decreaseKey'] = {
+		[1] = decreaseKey,
+		[2] = 'extra1'
+	},
+	['timerKey'] = {
+		[1] = timerKey,
+		[2] = 'extra3'
+	},
+	['detonateKey'] = {
+		[1] = detonateKey,
+		[2] = 'extra0'
+	}
+}
+
+local function getDeviceId()
+	return LastInputDevice() or 1 -- We assume deviceId 0 is keyboard
+end
+
+local function getKey(key)
+	return CONTROLS[key][getDeviceId()]
+end
+
+local function formatIcon(icon)
+	return '[[' .. icon .. ';iconsize=40,40]]'
+end
+
+local DEFAULT_EXTRA_KEYS = {
+	['extra0'] = {'gamepad_button_r3', 'gamepad_dpad_up'},
+	['extra1'] = {'gamepad_button_r3', 'gamepad_dpad_right'},
+	['extra2'] = {'gamepad_button_r3', 'gamepad_dpad_left'},
+	['extra3'] = {'gamepad_button_r3', 'gamepad_dpad_down'},
+}
+
+local function getKeyText(key)
+	if key == 'usetool' then
+		return getDeviceId() == 1 and 'left mouse button' or formatIcon('usetool')
+	end
+	local keyCode = getKey(key)
+	if getDeviceId() == 1 then
+		return keyCode:upper()
+	end
+	local string = nil
+	for _,icon in ipairs(DEFAULT_EXTRA_KEYS[keyCode]) do
+		if string == nil then
+			string = formatIcon(icon)
+		else
+			string = string .. '+' .. formatIcon(icon)
+		end
+	end
+	return string
+end
+
 local function checkAmmo()
 	if GetBool("savegame.mod.limitedammo") then
 		return true
@@ -81,7 +138,7 @@ local function explodeBomb(bombId)
 end
 
 local function isDetonateKeyPressed()
-	return InputDown(detonateKey) and not GetBool("savegame.mod.usetool")
+	return InputDown(getKey('detonateKey')) and not GetBool("savegame.mod.usetool")
 end
 
 local function isDetonateToolUsed()
@@ -159,7 +216,7 @@ function tick(dt)
 		end
 
 		--Making explosion bigger
-		if InputDown(increaseKey) then
+		if InputDown(getKey('increaseKey')) then
 			SetFloat("savegame.mod.explosionSize", GetFloat("savegame.mod.explosionSize") + 0.5 * dt)
 			if (GetFloat("savegame.mod.explosionSize") > 4.0) then
 				SetFloat("savegame.mod.explosionSize", 4.0)
@@ -167,7 +224,7 @@ function tick(dt)
 		end
 
 		--Making explosion smaller
-		if InputDown(decreaseKey) then
+		if InputDown(getKey('decreaseKey')) then
 			SetFloat("savegame.mod.explosionSize", GetFloat("savegame.mod.explosionSize") - 0.5 * dt)
 			if (GetFloat("savegame.mod.explosionSize") < 0.5) then
 				SetFloat("savegame.mod.explosionSize", 0.5)
@@ -175,7 +232,7 @@ function tick(dt)
 		end
 
 		--Changing the timer
-		if InputPressed(timerKey) then
+		if InputPressed(getKey('timerKey')) then
 			SetInt("savegame.mod.explosionTimer", GetInt("savegame.mod.explosionTimer") + 1)
 			if GetInt("savegame.mod.explosionTimer") > #timerPresets then
 				SetInt("savegame.mod.explosionTimer", 1)
@@ -186,6 +243,7 @@ end
 
 function draw()
 	if GetString("game.player.tool") == "cfour" and GetPlayerVehicle() == 0 then --I don't want it to draw this thing when player is in a car
+		UiPush()
 		UiTranslate(0, UiHeight() - 100)
 		UiAlign("left bottom")
 		UiFont("bold.ttf", 24)
@@ -196,16 +254,17 @@ function draw()
 		text = text ..
 			"Explosion size: " ..
 			math.floor(GetFloat("savegame.mod.explosionSize") * 100) /
-			100 --This weird math is needed to only leave 2 numbers after the decimal point
+			100 -- This math is needed to only leave 2 numbers after the decimal point
 		text = text .. " (" .. math.floor((GetFloat("savegame.mod.explosionSize") - 0.5) / 3.5 * 100) .. "%)\n"
 		text = text .. "Time between explosions: " .. timerPresets[GetInt("savegame.mod.explosionTimer")] .. "s\n"
-		text = text .. "Click left mouse button to plant the charge\n"
+		text = text .. "Press " .. getKeyText('usetool') .. " to plant a charge\n"
 		if not GetBool("savegame.mod.usetool") then
-			text = text .. "Press " .. detonateKey:upper() .. " to detonate the charges\n"
+			text = text .. "Press " .. getKeyText('detonateKey') .. " to detonate the charges\n"
 		end
 		text = text ..
-			"Press " .. increaseKey:upper() .. "/" .. decreaseKey:upper() .. " to change the size of explosion\n"
-		text = text .. "Press " .. timerKey:upper() .. " to change time between explosions"
+			"Hold " .. getKeyText('increaseKey') .. "/" .. getKeyText('decreaseKey') .. " to change the size of explosion\n"
+		text = text .. "Press " .. getKeyText('timerKey') .. " to change time between explosions"
 		UiText(text)
+		UiPop()
 	end
 end
