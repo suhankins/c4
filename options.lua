@@ -185,18 +185,18 @@ function draw()
 		--First key row
 		UiTranslate(0, 55)
 		for i = 1, #keyboard[3] do
-			drawKeyboardButton(-330 + (i - 1) * 55, 0, changeKey, keyboard[3][i])
+			drawKeyboardButton(-380 + (i - 1) * 55, 0, changeKey, keyboard[3][i])
 		end
 		--Second key row
 		UiTranslate(0, 55)
 		for i = 1, #keyboard[4] do
-			drawKeyboardButton(-320 + (i - 1) * 55, 0, changeKey, keyboard[4][i])
+			drawKeyboardButton(-290 + (i - 1) * 55, 0, changeKey, keyboard[4][i])
 		end
-		drawKeyboardButton(210, 0, changeKey, "return", 125)
+		drawKeyboardButton(240, 0, changeKey, "return", 125)
 		--Third key row
 		UiTranslate(0, 55)
 		for i = 1, #keyboard[5] do
-			drawKeyboardButton(-300 + (i - 1) * 55, 0, changeKey, keyboard[5][i])
+			drawKeyboardButton(-260 + (i - 1) * 55, 0, changeKey, keyboard[5][i])
 		end
 		UiPop()
 		--Some other keys
